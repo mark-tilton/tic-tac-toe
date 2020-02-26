@@ -1,20 +1,62 @@
+import random as rand
+import numpy as np
+
 from board import Board
 from action import Action
+from weighted_player import WeightedPlayer
+from random_player import RandomPlayer
+from human_player import HumanPlayer
 
-board = Board()
 
-print(board)
+print_win = False
+def play_game(p1, p2):
+    players = [p1, p2]
+    board = Board()
+    player = 0
+    winner = None
+    move_count = 0
+    while winner == None:
+        (x, y) = players[player].take_turn(board, player)
+        board = board.make_move(Action(x, y, player + 1))
+        player = 1 - player
+        winner = board.get_winner()
+        move_count += 1
+        if move_count == 9:
+            break
+    if print_win:
+        print(f'{winner} wins!')
+    return winner
 
-player = 0
-while True:
-    move = input("Please enter your move: ")
-    x = int(move[0])
-    y = int(move[1])
-    board = board.make_move(Action(x, y, player + 1))
-    print(board)
-    winner = board.get_winner()
-    if winner != None:
-        print(f'{Board.get_player_name(winner)} wins!')
-        break
-    player = 1 - player
+def get_player_score(game_count, player1, player2):
+    wins = 0
+    ties = 0
+    for i in range(game_count):
+        if i % 2 == 0:
+            winner = play_game(player1, player2)
+            if winner == 1:
+                wins += 1
+        else:
+            winner = play_game(player2, player1)
+            if winner == 2:
+                wins += 1
+        if winner == None:
+            ties += 1
+    if ties == game_count:
+        return None
+    score = wins / (game_count - ties)
+    return score
 
+training_steps = 5000
+player = WeightedPlayer(np.zeros((9, 9)))
+for _ in range(training_steps):
+    new_player = player.mutate(0.05)
+    score = get_player_score(500, player, RandomPlayer())
+    new_score = get_player_score(500, new_player, RandomPlayer())
+    if new_score > score:
+        print(new_score)
+        player = new_player
+
+print(get_player_score(10000, player, RandomPlayer()))
+
+print_win = True
+print(get_player_score(4, player, HumanPlayer()))

@@ -62,7 +62,7 @@ class Board:
 
     def __repr__(self):
         result = ''
-        result += '  0 1 2\n0 '
+        result += '  0 1 2\n\n0 '
         result += Board.repr_row(self.cells[0])
         row_num = 1
         for row in self.cells[1:]:
