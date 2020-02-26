@@ -46,15 +46,18 @@ def get_player_score(game_count, player1, player2):
     score = wins / (game_count - ties)
     return score
 
-training_steps = 5000
+training_steps = 100
 player = WeightedPlayer(np.zeros((9, 9)))
-for _ in range(training_steps):
-    new_player = player.mutate(0.05)
+batch_size = 100
+for i in range(training_steps):
+    gradients = []
     score = get_player_score(500, player, RandomPlayer())
-    new_score = get_player_score(500, new_player, RandomPlayer())
-    if new_score > score:
-        print(new_score)
-        player = new_player
+    for _ in range(batch_size):
+        new_player = player.mutate(0.1)
+        new_score = get_player_score(50, new_player, RandomPlayer())
+        gradients.append(new_player.gradient * (new_score - score))
+    print(score)
+    player = WeightedPlayer(player.weights + sum(gradients) / batch_size)
 
 print(get_player_score(10000, player, RandomPlayer()))
 

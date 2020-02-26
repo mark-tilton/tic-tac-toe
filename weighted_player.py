@@ -8,12 +8,14 @@ class WeightedPlayer:
 
 
     def mutate(self, rate):
-        new_weights = np.copy(self.weights)
+        gradient = np.zeros((9, 9))
         for x in range(9):
             for y in range(9):
-                new_weights[x, y] += (2 * rand.random() - 1) * rate
-        return WeightedPlayer(new_weights)
-
+                gradient[x, y] = (2 * rand.random() - 1) * rate
+        new_player = WeightedPlayer(self.weights + gradient)
+        new_player.gradient = gradient
+        return new_player
+        
     
     def take_turn(self, board, player_id):
         vec = board.cells.flatten()
