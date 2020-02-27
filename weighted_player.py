@@ -1,11 +1,11 @@
 import numpy as np
 import random as rand
 
+
 class WeightedPlayer:
 
     def __init__(self, weights):
         self.weights = weights
-
 
     def mutate(self, rate):
         gradient = np.zeros((9, 9))
@@ -15,10 +15,9 @@ class WeightedPlayer:
         new_player = WeightedPlayer(self.weights + gradient)
         new_player.gradient = gradient
         return new_player
-        
-    
+
     def take_turn(self, board, player_id):
-        vec = board.cells.flatten()
+        vec = np.copy(board.cells)
         for i in range(9):
             if vec[i] == player_id + 1:
                 vec[i] = 1
@@ -33,4 +32,3 @@ class WeightedPlayer:
                     best_score = score
                     best_move = i
         return (best_move % 3, int(best_move / 3))
-

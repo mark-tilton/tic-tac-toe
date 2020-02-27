@@ -9,6 +9,8 @@ from human_player import HumanPlayer
 
 
 print_win = False
+
+
 def play_game(p1, p2):
     players = [p1, p2]
     board = Board()
@@ -17,7 +19,7 @@ def play_game(p1, p2):
     move_count = 0
     while winner == None:
         (x, y) = players[player].take_turn(board, player)
-        board = board.make_move(Action(x, y, player + 1))
+        board = board.make_move(Action(y * 3 + x, player + 1))
         player = 1 - player
         winner = board.get_winner()
         move_count += 1
@@ -26,6 +28,7 @@ def play_game(p1, p2):
     if print_win:
         print(f'{winner} wins!')
     return winner
+
 
 def get_player_score(game_count, player1, player2):
     wins = 0
@@ -46,9 +49,10 @@ def get_player_score(game_count, player1, player2):
     score = wins / (game_count - ties)
     return score
 
-training_steps = 100
+
+training_steps = 1000
 player = WeightedPlayer(np.zeros((9, 9)))
-batch_size = 100
+batch_size = 10
 for i in range(training_steps):
     gradients = []
     score = get_player_score(500, player, RandomPlayer())
