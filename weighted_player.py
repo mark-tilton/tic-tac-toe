@@ -1,34 +1,51 @@
 import numpy as np
 import random as rand
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from neuralnet import Net
+
+
+def normalize_board(board, player_id):
+    vec = np.copy(board.cells)
+    for i in range(9):
+        if vec[i] == player_id + 1:
+            vec[i] = 1
+        if vec[i] == (1 - player_id) + 1:
+            vec[i] = -1
+    return vec
+
+
+def make_one_hot(i):
+    vec = torch.zeros(9)
+    vec[i] = 1
+    return vec
 
 
 class WeightedPlayer:
 
-    def __init__(self, weights):
-        self.weights = weights
+    def __init__(self):
+        self.net = Net()
 
-    def mutate(self, rate):
-        gradient = np.zeros((9, 9))
-        for x in range(9):
-            for y in range(9):
-                gradient[x, y] = (2 * rand.random() - 1) * rate
-        new_player = WeightedPlayer(self.weights + gradient)
-        new_player.gradient = gradient
-        return new_player
+    def evaluate(self, board, player_id):
+        vec = torch.from_numpy(normalize_board(board, player_id)).float()]
+        output = self.net.forward(torch.from_numpy(vec).float())
+        return output
 
     def take_turn(self, board, player_id):
-        vec = np.copy(board.cells)
-        for i in range(9):
-            if vec[i] == player_id + 1:
-                vec[i] = 1
-            if vec[i] == (1 - player_id) + 1:
-                vec[i] = -1
-        result_vec = [sum(r) for r in self.weights * vec]
+        result_vec = self.evaluate(board, player_id)
         best_score = -1e6
         best_move = -1
-        for (cell, score, i) in zip(vec, result_vec, range(9)):
+        for (cell, score, i) in zip(board.cells, result_vec, range(9)):
             if cell == 0:
                 if score > best_score:
                     best_score = score
                     best_move = i
-        return (best_move % 3, int(best_move / 3))
+        return best_move
+
+    def train(self, winning_moves):
+        x = torch.from_numpy([normalize_board(board, action.val)
+                              for board, action in winning_moves])
+        y = torch.from_numpy([make_one_hot(action.pos)
+                              for board, action in winning_moves])
+        self.net.train(x, y)
