@@ -18,8 +18,8 @@ def play_game(p1, p2):
     winner = None
     move_count = 0
     while winner == None:
-        (x, y) = players[player].take_turn(board, player)
-        board = board.make_move(Action(y * 3 + x, player + 1))
+        pos = players[player].take_turn(board, player)
+        board = board.make_move(Action(pos, player + 1))
         player = 1 - player
         winner = board.get_winner()
         move_count += 1
@@ -50,18 +50,21 @@ def get_player_score(game_count, player1, player2):
     return score
 
 
-training_steps = 1000
-player = WeightedPlayer(np.zeros((9, 9)))
-batch_size = 10
+training_steps = 100
+player = WeightedPlayer(np.zeros((9, 9)), np.zeros((9)))
+batch_size = 100
 for i in range(training_steps):
     gradients = []
-    score = get_player_score(500, player, RandomPlayer())
+    bgradients = []
+    score = get_player_score(100, player, RandomPlayer())
     for _ in range(batch_size):
         new_player = player.mutate(0.1)
-        new_score = get_player_score(50, new_player, RandomPlayer())
-        gradients.append(new_player.gradient * (new_score - score))
+        new_score = get_player_score(100, new_player, RandomPlayer())
+        gradients.append(new_player.w1gradient * (new_score - score))
+        bgradients.append(new_player.bgradient * (new_score - score))
     print(score)
-    player = WeightedPlayer(player.weights + sum(gradients) / batch_size)
+    player = WeightedPlayer(player.weights + sum(gradients) / batch_size,
+                            player.bias + sum(bgradients) / batch_size)
 
 print(get_player_score(10000, player, RandomPlayer()))
 
