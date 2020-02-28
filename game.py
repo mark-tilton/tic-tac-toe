@@ -50,21 +50,30 @@ def get_player_score(game_count, player1, player2):
     return score
 
 
-training_steps = 100
-player = WeightedPlayer(np.zeros((9, 9)), np.zeros((9)))
+training_steps = 1000
+player = WeightedPlayer.create(9)
 batch_size = 100
 for i in range(training_steps):
-    gradients = []
-    bgradients = []
+    w1gs = []
+    w2gs = []
+    b1gs = []
+    b2gs = []
     score = get_player_score(100, player, RandomPlayer())
     for _ in range(batch_size):
         new_player = player.mutate(0.1)
         new_score = get_player_score(100, new_player, RandomPlayer())
-        gradients.append(new_player.w1gradient * (new_score - score))
-        bgradients.append(new_player.bgradient * (new_score - score))
+        weight = new_score - score
+        w1gs.append(new_player.w1g * weight)
+        w2gs.append(new_player.w2g * weight)
+        b1gs.append(new_player.b1g * weight)
+        b2gs.append(new_player.b2g * weight)
     print(score)
-    player = WeightedPlayer(player.weights + sum(gradients) / batch_size,
-                            player.bias + sum(bgradients) / batch_size)
+    player = WeightedPlayer(
+        player.h,
+        player.w1 + sum(w1gs) / batch_size,
+        player.w2 + sum(w2gs) / batch_size,
+        player.b1 + sum(b1gs) / batch_size,
+        player.b2 + sum(b2gs) / batch_size)
 
 print(get_player_score(10000, player, RandomPlayer()))
 
