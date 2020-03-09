@@ -57,6 +57,17 @@ class Board:
             result += Board.get_player_name(cell)
         return result
 
+
+    def get_normalized_cells(self, player_id):
+        vec = np.copy(self.cells)
+        for i in range(9):
+            if vec[i] == player_id + 1:
+                vec[i] = 1
+            if vec[i] == (1 - player_id) + 1:
+                vec[i] = -1
+        return vec
+
+
     def __repr__(self):
         result = ''
         result += '  0 1 2\n0 '
