@@ -28,7 +28,7 @@ class WeightedPlayer:
         self.net = Net()
 
     def evaluate(self, board, player_id):
-        vec = torch.from_numpy(normalize_board(board, player_id)).float()]
+        vec = torch.from_numpy(normalize_board(board, player_id)).float()
         output = self.net.forward(torch.from_numpy(vec).float())
         return output
 

@@ -23,6 +23,9 @@ class Board:
         new_board.cells[action.pos] = action.val
         return new_board
 
+    def get_valid_moves(self, player_id):
+        return [i for v, i in zip(self.cells, range(9)) if v == 0]
+
     def get_winner(self):
         # Check rows / columns
         for i in range(3):

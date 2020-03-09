@@ -6,6 +6,7 @@ from action import Action
 from weighted_player import WeightedPlayer
 from random_player import RandomPlayer
 from human_player import HumanPlayer
+from perfect_player import PerfectPlayer
 
 
 print_win = False
@@ -56,17 +57,18 @@ def get_player_score(game_count, player1, player2):
     return (score, winning_moves)
 
 
-for i in range(10000):
-    ai = WeightedPlayer()
-    score, winning_moves = get_player_score(20, ai, RandomPlayer())
-    if i % 10 == 0:
-        print(score)
-    ai.train(winning_moves)
+# for i in range(10000):
+#     ai = WeightedPlayer()
+#     score, winning_moves = get_player_score(20, ai, RandomPlayer())
+#     if i % 10 == 0:
+#         print(score)
+#     ai.train(winning_moves)
 
 
-score, _ = get_player_score(10000, ai, RandomPlayer())
+print_win = True
+score, _ = get_player_score(10000, PerfectPlayer(), HumanPlayer())
 print(score)
 
 print_win = True
-score, _ = get_player_score(4, ai, HumanPlayer())
+score, _ = get_player_score(4, PerfectPlayer(), HumanPlayer())
 print(score)
