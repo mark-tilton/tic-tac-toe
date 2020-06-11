@@ -23,7 +23,7 @@ class Board:
         new_board.cells[action.pos] = action.val
         return new_board
 
-    def get_valid_moves(self, player_id):
+    def get_valid_moves(self):
         return [i for v, i in zip(self.cells, range(9)) if v == 0]
 
     def get_winner(self):
@@ -71,3 +71,9 @@ class Board:
             row_num += 1
             result += Board.repr_row(row)
         return result
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        return hash(str(self.cells))
